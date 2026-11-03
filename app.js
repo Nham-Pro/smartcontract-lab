@@ -17,11 +17,4 @@ async function load(){let a;if(cfg.API_URL){const r=await call("list",{token:tea
 function openReview(r){selected=r;$("review").hidden=false;$("reviewName").textContent=`${r.name} (${r.id})`;$("reviewText").textContent=`Lớp: ${r.className} · Tự động: ${r.autoScore}/70 · Kết quả: ${r.result||"Không có"} · Phân tích: ${r.reflection||"Không có"}`;$("reviewScore").value=r.teacherScore??0;$("reviewComment").value=r.teacherComment||""}
 $("saveReview").onclick=async()=>{if(!selected)return;const score=+$("reviewScore").value,comment=$("reviewComment").value.trim();if(!Number.isFinite(score)||score<0||score>30){$("reviewStatus").textContent="Điểm giáo viên phải từ 0 đến 30.";return}try{if(cfg.API_URL)await call("review",{token:teacherToken,studentId:selected.id,submittedAt:selected.submittedAt,score,comment});else{const a=local(),i=a.findIndex(x=>x.id===selected.id&&x.submittedAt===selected.submittedAt);if(i>=0){a[i].teacherScore=score;a[i].teacherComment=comment;saveLocal(a)}}$("reviewStatus").textContent="Đã lưu điểm và nhận xét.";await load();if(student?.id===selected.id)renderScore({teacherScore:score,teacherComment:comment})}catch(e){$("reviewStatus").textContent=e.message}};
 $("refresh").onclick=()=>load().catch(e=>$("teacherStatus").textContent=e.message);
-fetch("https://preview.koios.rest/api/v1/tip")
-  .then(response => {
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    return response.json();
-  })
-  .then(data => console.log("KOIOS_PREVIEW_OK", data))
-  .catch(error => console.error("KOIOS_PREVIEW_ERROR", error));
 })();
